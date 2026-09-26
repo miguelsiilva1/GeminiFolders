@@ -1,0 +1,29 @@
+name: Release
+
+# Push a tag matching package.json's version (e.g. v1.0.0) to build and publish the extension zip.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Check tag matches package.json version
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run zip
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: .output/*-chrome.zip
+          generate_release_notes: true
