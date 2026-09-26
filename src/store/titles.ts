@@ -30,5 +30,7 @@ export async function recordTitles(chats: ChatRef[]) {
 
 /** Adds titles from a backup; titles already seen on this device win. */
 export async function importTitles(imported: TitleCache) {
-  await browser.storage.local.set({ [KEY]: { ...imported, ...(await loadTitles()) } });
+  const local = await loadTitles();
+  if (Object.keys(imported).some((id) => !(id in local)))
+    await browser.storage.local.set({ [KEY]: { ...imported, ...local } });
 }

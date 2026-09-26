@@ -7,9 +7,18 @@ import { watchChats } from '../../src/dom/scanner';
 import { SEL } from '../../src/dom/selectors';
 import { isChatId } from '../../src/store/schema';
 import { createStore } from '../../src/store/store';
+import { createTitlePusher, watchSyncedTitles } from '../../src/store/syncTitles';
 import { recordTitles } from '../../src/store/titles';
 import { App } from '../../src/ui/App';
-import { bindStore, currentChat, folders, hideOrganized, loadPrefs, watchTitles } from '../../src/ui/model';
+import {
+  bindStore,
+  currentChat,
+  folders,
+  hideOrganized,
+  loadPrefs,
+  titles,
+  watchTitles,
+} from '../../src/ui/model';
 
 export default defineContentScript({
   matches: ['https://gemini.google.com/*'],
@@ -23,6 +32,12 @@ export default defineContentScript({
     ctx.onInvalidated(stopTitles);
     ctx.onInvalidated(bindStore(store));
     ctx.onInvalidated(store.dispose);
+
+    // Share titles of chats in the panel with other computers.
+    ctx.onInvalidated(watchSyncedTitles());
+    const titlePusher = createTitlePusher();
+    ctx.onInvalidated(titlePusher.dispose);
+    ctx.onInvalidated(effect(() => titlePusher.push(folders.value, titles.value)));
 
     // Optionally hide chats that are already in the panel from Gemini's Recent list.
     const pageStyle = mountPageStyle();
