@@ -1,6 +1,6 @@
 {
   "name": "gemini-folders",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "scripts": {
     "dev": "wxt",
@@ -9,7 +9,9 @@
     "postinstall": "wxt prepare",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check:manifest": "node scripts/check-manifest.mjs"
+    "check:manifest": "node scripts/check-manifest.mjs",
+    "icons": "node scripts/icons.mjs",
+    "demo": "vite --config demo/vite.config.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +19,7 @@
   "type": "module",
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",
+    "@resvg/resvg-js": "^2.6.2",
     "happy-dom": "^20.14.5",
     "typescript": "^7.0.2",
     "vitest": "^5.0.2",
