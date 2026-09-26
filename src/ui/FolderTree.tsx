@@ -3,6 +3,7 @@ import { deleteFolder, moveItem, renameFolder } from '../store/ops';
 import { MAX_DEPTH, MAX_NAME, isFolderId } from '../store/schema';
 import { ChatItem } from './ChatItem';
 import { ContextMenu, type MenuItem } from './ContextMenu';
+import { dragSource, dropClass, dropZone } from './dnd';
 import { ICONS, Icon } from './icons';
 import { t } from './i18n';
 import { act, collapsed, currentChat, editingId, folders, newFolder, toggleCollapsed } from './model';
@@ -53,7 +54,12 @@ function FolderNode({ id, level }: { id: string; level: number }) {
 
   return (
     <>
-      <div class="row" style={{ '--level': level }}>
+      <div
+        class={'row' + dropClass(id)}
+        style={{ '--level': level }}
+        {...(editing ? {} : dragSource(id, 'folder'))}
+        {...dropZone(id, 'folder')}
+      >
         {editing ? (
           <div class="main">
             {icons}
@@ -82,7 +88,7 @@ function FolderNode({ id, level }: { id: string; level: number }) {
         (folder.order.length ? (
           <FolderList ids={folder.order} level={level + 1} />
         ) : (
-          <div class="empty" style={{ '--level': level + 1 }}>
+          <div class="empty" style={{ '--level': level + 1 }} {...dropZone(id, 'into')}>
             {t.empty}
           </div>
         ))}

@@ -121,6 +121,21 @@ export function moveItem(state: State, id: string, target: string | null, index:
   return next;
 }
 
+export type DropPos = 'before' | 'after' | 'into';
+
+/** Moves id next to targetId (same parent), or to the end of folder targetId for 'into'. */
+export function moveRelative(state: State, id: string, targetId: string, pos: DropPos): State {
+  if (pos === 'into') return moveItem(state, id, targetId, listOf(state, targetId).length);
+  const parent = parentOf(state, targetId);
+  if (parent === undefined) throw new OpError('notFound');
+  const list = listOf(state, parent);
+  let index = list.indexOf(targetId) + (pos === 'after' ? 1 : 0);
+  // moveItem inserts after removing id, which shifts later positions left by one.
+  const from = list.indexOf(id);
+  if (from !== -1 && from < index) index--;
+  return moveItem(state, id, parent, index);
+}
+
 /** Removes a chat from its folder, returning it to Gemini's list. */
 export function unassignChat(state: State, chatId: string): State {
   const next = structuredClone(state);

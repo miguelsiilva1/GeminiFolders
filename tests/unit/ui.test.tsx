@@ -30,7 +30,9 @@ async function createFolderNamed(name: string) {
   const input = q<HTMLInputElement>('input.rename')!;
   expect(document.activeElement).toBe(input);
   input.value = name;
-  await act(() => input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' })));
+  await act(() => {
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+  });
 }
 
 describe('folder panel', () => {

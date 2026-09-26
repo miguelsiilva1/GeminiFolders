@@ -1,3 +1,4 @@
+import { ROOT, dropClass, dropZone } from './dnd';
 import { FolderList } from './FolderTree';
 import { ICONS, Icon } from './icons';
 import { t } from './i18n';
@@ -8,7 +9,7 @@ export function App() {
   const root = folders.value.rootOrder;
   return (
     <section class="panel" aria-label={t.folders}>
-      <div class="header">
+      <div class={'header' + dropClass(ROOT)} {...dropZone(ROOT, 'root')}>
         <button class="header-toggle" aria-expanded={open} onClick={() => toggleCollapsed(SECTION)}>
           <span>{t.folders}</span>
           <Icon d={ICONS.expand} class={open ? undefined : 'rot'} />

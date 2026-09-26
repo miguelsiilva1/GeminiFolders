@@ -5,6 +5,7 @@
   --muted: color-mix(in srgb, currentColor 55%, transparent);
   --surface: #fff;
   --danger: #b3261e;
+  --accent: #0b57d0;
   margin-bottom: 8px;
   font-family: 'Google Sans Flex', 'Google Sans', 'Helvetica Neue', sans-serif;
   font-size: 13px;
@@ -13,6 +14,7 @@
 :host-context(.dark-theme) .panel {
   --surface: #2b2c2e;
   --danger: #f2b8b5;
+  --accent: #a8c7fa;
 }
 
 button {
@@ -60,6 +62,36 @@ button {
 }
 .row.active {
   background: var(--active);
+}
+
+/* Drag and drop indicators */
+.row {
+  position: relative;
+}
+.row.drop-before::before,
+.row.drop-after::after {
+  content: '';
+  position: absolute;
+  left: calc(8px + var(--level, 0) * 20px);
+  right: 8px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  pointer-events: none;
+}
+.row.drop-before::before {
+  top: -1px;
+}
+.row.drop-after::after {
+  bottom: -1px;
+}
+.row.drop-into,
+.header.drop-into {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.header {
+  border-radius: 9999px;
 }
 .main {
   flex: 1;
