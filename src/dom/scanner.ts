@@ -2,13 +2,16 @@ import { SEL, chatIdFromHref } from './selectors';
 
 export type ChatRef = { id: string; title: string };
 
+/** Page text is untrusted; cap what gets stored. */
+const MAX_TITLE = 200;
+
 export function scanChats(root: ParentNode = document): ChatRef[] {
   const chats: ChatRef[] = [];
   for (const item of root.querySelectorAll(SEL.conversation)) {
     const link = item.querySelector<HTMLAnchorElement>(SEL.conversationLink);
     const id = chatIdFromHref(link?.getAttribute('href') ?? null);
     if (!link || !id) continue;
-    const title = (link.textContent ?? '').trim().split('\n')[0]!.trim();
+    const title = (link.textContent ?? '').trim().split('\n')[0]!.trim().slice(0, MAX_TITLE);
     chats.push({ id, title });
   }
   return chats;

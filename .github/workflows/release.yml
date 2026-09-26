@@ -20,9 +20,11 @@ jobs:
       - name: Check tag matches package.json version
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
       - run: npm ci
+      - run: npm audit --audit-level=high
       - run: npm run typecheck
       - run: npm test
       - run: npm run zip
+      - run: npm run check:manifest
       - uses: softprops/action-gh-release@v2
         with:
           files: .output/*-chrome.zip

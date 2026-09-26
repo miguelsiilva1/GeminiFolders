@@ -8,7 +8,8 @@
     "zip": "wxt zip",
     "postinstall": "wxt prepare",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:manifest": "node scripts/check-manifest.mjs"
   },
   "keywords": [],
   "author": "",
