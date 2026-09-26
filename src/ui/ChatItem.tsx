@@ -8,6 +8,7 @@ import { act, currentChat, titles } from './model';
 export function ChatItem({ id, level }: { id: string; level: number }) {
   const title = titles.value[id]?.title;
   const active = currentChat.value === id;
+  const remove = level === 0 ? t.removeFromPanel : t.removeFromFolder;
   return (
     <div
       class={(active ? 'row active' : 'row') + dropClass(id)}
@@ -30,8 +31,8 @@ export function ChatItem({ id, level }: { id: string; level: number }) {
       </a>
       <button
         class="icon-btn"
-        aria-label={t.removeFromFolder}
-        title={t.removeFromFolder}
+        aria-label={remove}
+        title={remove}
         onClick={() => act((s) => unassignChat(s, id))}
       >
         <Icon d={ICONS.close} />

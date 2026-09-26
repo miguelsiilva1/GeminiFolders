@@ -5,7 +5,6 @@ export type OpCode =
   | 'notFound'
   | 'maxDepth'
   | 'intoSelf'
-  | 'chatAtRoot'
   | 'unknownItem'
   | 'folderFull'
   | 'tooManyFolders'
@@ -85,7 +84,7 @@ export function renameFolder(state: State, id: string, name: string): State {
   return next;
 }
 
-/** Contents move up to the parent in place; at root, chats return to Gemini's list. */
+/** Contents (chats and subfolders) move up to the parent in place. */
 export function deleteFolder(state: State, id: string): State {
   const folder = state.folders[id];
   if (!folder) throw new OpError('notFound');
@@ -93,17 +92,19 @@ export function deleteFolder(state: State, id: string): State {
   const parent = parentOf(next, id);
   if (parent !== undefined) {
     const list = listOf(next, parent);
-    const moved = parent === null ? folder.order.filter(isFolderId) : folder.order;
-    list.splice(list.indexOf(id), 1, ...moved);
+    list.splice(list.indexOf(id), 1, ...folder.order);
   }
   delete next.folders[id];
   return next;
 }
 
-/** Moves a chat or folder to position index of target (null = root). A chat lives in one folder at most. */
+/**
+ * Moves a chat or folder to position index of target (null = top level, where chats can sit
+ * without a folder). A chat is placed in one spot at most.
+ */
 export function moveItem(state: State, id: string, target: string | null, index: number): State {
   if (isChatId(id)) {
-    if (target === null) throw new OpError('chatAtRoot');
+    // Chats can go anywhere.
   } else if (isFolderId(id)) {
     if (!state.folders[id]) throw new OpError('notFound');
     if (target === id || (target && isInside(state, target, id)))

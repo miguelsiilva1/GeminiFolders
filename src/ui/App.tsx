@@ -18,7 +18,14 @@ export function App() {
           <Icon d={ICONS.add} />
         </button>
       </div>
-      {open && (root.length ? <FolderList ids={root} level={0} /> : <div class="empty hint">{t.noFolders}</div>)}
+      {open &&
+        (root.length ? (
+          <FolderList ids={root} level={0} />
+        ) : (
+          <div class={'empty hint' + dropClass(ROOT)} {...dropZone(ROOT, 'root')}>
+            {t.noFolders}
+          </div>
+        ))}
       {toast.value && (
         <div class="toast" role="status">
           {toast.value}

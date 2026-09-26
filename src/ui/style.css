@@ -86,7 +86,8 @@ button {
   bottom: -1px;
 }
 .row.drop-into,
-.header.drop-into {
+.header.drop-into,
+.empty.drop-into {
   background: color-mix(in srgb, var(--accent) 22%, transparent);
   box-shadow: inset 0 0 0 1px var(--accent);
 }

@@ -9,7 +9,7 @@ const FOLDER = 'application/x-gemini-folders-folder';
 // Dragging a chat link from Gemini's own list carries its URL.
 const URI = 'text/uri-list';
 
-/** Drop zone id for the panel header (move a folder to the top level). */
+/** Drop zone id for the panel header and empty hint (add to the end of the top level). */
 export const ROOT = 'root';
 
 type Kind = 'chat' | 'folder';
@@ -47,14 +47,12 @@ function effectFor(dt: DataTransfer): 'move' | 'link' | 'copy' {
   return allowed.includes('link') ? 'link' : 'copy';
 }
 
-function posFor(e: DragEvent, zone: Zone, dragged: Kind): DropPos | null {
-  if (zone === 'into') return 'into';
-  if (zone === 'root') return dragged === 'folder' ? 'into' : null;
+function posFor(e: DragEvent, zone: Zone): DropPos {
+  if (zone === 'into' || zone === 'root') return 'into';
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
   const y = (e.clientY - rect.top) / rect.height;
   if (zone === 'chat') return y < 0.5 ? 'before' : 'after';
-  // Folder rows: chats always go inside; folders go before/after near the edges, inside in the middle.
-  if (dragged === 'chat') return 'into';
+  // Folder rows: before/after near the edges, inside in the middle.
   return y < 0.25 ? 'before' : y > 0.75 ? 'after' : 'into';
 }
 
@@ -74,7 +72,7 @@ export function dragSource(id: string, kind: Kind) {
 export function dropZone(targetId: string, zone: Zone) {
   const pos = (e: DragEvent) => {
     const kind = e.dataTransfer && draggedKind(e.dataTransfer);
-    return kind ? posFor(e, zone, kind) : null;
+    return kind ? posFor(e, zone) : null;
   };
   return {
     onDragOver: (e: DragEvent) => {

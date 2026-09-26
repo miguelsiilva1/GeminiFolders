@@ -9,17 +9,19 @@ export const MAX_NAME = 80;
 export const isChatId = (id: string) => CHAT_ID.test(id);
 export const isFolderId = (id: string) => FOLDER_ID.test(id);
 
+const itemId = z.string().refine((id) => isChatId(id) || isFolderId(id));
+
 export const folderSchema = z.object({
   name: z.string().trim().min(1).max(MAX_NAME),
   color: z.string().regex(/^#[0-9a-f]{6}$/i).optional(),
   /** Chat ids and child folder ids, in display order. */
-  order: z.array(z.string().refine((id) => isChatId(id) || isFolderId(id))),
+  order: z.array(itemId),
 });
 
 export const stateSchema = z.object({
   v: z.literal(1),
-  /** Top-level folder ids. Unassigned chats stay in Gemini's own list. */
-  rootOrder: z.array(z.string().regex(FOLDER_ID)),
+  /** Top level of the panel: folders and chats without a folder, in display order. */
+  rootOrder: z.array(itemId),
   folders: z.record(z.string().regex(FOLDER_ID), folderSchema),
 });
 

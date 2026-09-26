@@ -133,6 +133,25 @@ describe('panel drag and drop', () => {
     expect(orderOf('Work')).toEqual([]);
   });
 
+  it('keeps chats without a folder at the top level, placed by row edges or the header', async () => {
+    await drag('drop', rowOf('Uni'), nativeLink(chat(1)), 2); // top edge of Uni = before it
+    await drag('drop', root.querySelector('.header')!, nativeLink(chat(2)));
+    const [work, , uni] = folders.value.rootOrder;
+    expect(folders.value.rootOrder).toEqual([work, chat(1), uni, chat(2)]);
+    expect(orderOf('Uni')).toEqual([]);
+    expect(root.querySelector(`a[href="/app/${chat(1)}"]`)!.closest('.row')!.querySelector('button')!.title).toBe(
+      'Remove from Folders',
+    );
+  });
+
+  it('accepts chats on the empty-panel hint', async () => {
+    fakeBrowser.reset();
+    const empty = await createStore();
+    act(() => void bindStore(empty));
+    await drag('drop', root.querySelector('.hint')!, nativeLink(chat(1)));
+    expect(folders.value.rootOrder).toEqual([chat(1)]);
+  });
+
   it('reorders folders using the row edges', async () => {
     await dragRow(rowOf('Uni'), rowOf('Work'), 2); // top quarter = before
     const names = folders.value.rootOrder.map((id) => folders.value.folders[id]!.name);

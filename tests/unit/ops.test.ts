@@ -58,8 +58,12 @@ describe('folder ops', () => {
     expect(next.folders[a]!.order[0]).toBe(chat(3));
   });
 
-  it('refuses chats at root', () => {
-    expect(() => moveItem(emptyState(), chat(1), null, 0)).toThrow(OpError);
+  it('lets chats sit at the top level and move between top level and folders', () => {
+    const { s, a, b } = tree();
+    const loose = moveItem(s, chat(1), null, 1); // between A and B
+    expect(loose.rootOrder).toEqual([a, chat(1), b]);
+    expect(loose.folders[a]!.order).not.toContain(chat(1));
+    expect(parentOf(moveItem(loose, chat(1), b, 0), chat(1))).toBe(b);
   });
 
   it('refuses moving a folder into itself or a descendant', () => {
@@ -76,13 +80,12 @@ describe('folder ops', () => {
     expect(() => moveItem(deep.state, a, b, 0)).toThrow(OpError);
   });
 
-  it('delete moves contents up in place; at root chats are unassigned', () => {
-    const { s, a, a1 } = tree();
+  it('delete moves chats and subfolders up in place, keeping them in the panel', () => {
+    const { s, a, a1, b } = tree();
     const inner = deleteFolder(s, a1);
     expect(inner.folders[a]!.order).toEqual([chat(1), chat(2)]);
     const outer = deleteFolder(s, a);
-    expect(outer.rootOrder[0]).toBe(a1);
-    expect(parentOf(outer, chat(1))).toBeUndefined();
+    expect(outer.rootOrder).toEqual([chat(1), a1, b]);
     expect(parentOf(outer, chat(2))).toBe(a1);
   });
 

@@ -73,7 +73,7 @@ describe('store', () => {
     });
     store.update((s) => moveItem(s, chat(1), id, 0));
     store.update((s) => moveItem(s, chat(2), id, 1));
-    expect(() => store.update((s) => moveItem(s, chat(3), null, 0))).toThrow(OpError);
+    expect(() => store.update((s) => moveItem(s, id, id, 0))).toThrow(OpError);
     expect(store.get().folders[id]!.order).toEqual([chat(1), chat(2)]);
     expect(set).not.toHaveBeenCalled();
     await vi.advanceTimersByTimeAsync(600);
