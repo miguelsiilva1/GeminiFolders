@@ -11,7 +11,7 @@ export function ChatItem({ id, level }: { id: string; level: number }) {
   const remove = level === 0 ? t.removeFromPanel : t.removeFromFolder;
   return (
     <div
-      class={(active ? 'row active' : 'row') + dropClass(id)}
+      class={(active ? 'row chat active' : 'row chat') + dropClass(id)}
       style={{ '--level': level }}
       {...dragSource(id, 'chat')}
       {...dropZone(id, 'chat')}

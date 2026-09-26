@@ -27,3 +27,8 @@ export async function recordTitles(chats: ChatRef[]) {
   const next = mergeTitles(await loadTitles(), chats, Date.now());
   if (next) await browser.storage.local.set({ [KEY]: next });
 }
+
+/** Adds titles from a backup; titles already seen on this device win. */
+export async function importTitles(imported: TitleCache) {
+  await browser.storage.local.set({ [KEY]: { ...imported, ...(await loadTitles()) } });
+}

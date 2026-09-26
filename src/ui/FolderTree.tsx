@@ -6,13 +6,23 @@ import { ContextMenu, type MenuItem } from './ContextMenu';
 import { dragSource, dropClass, dropZone } from './dnd';
 import { ICONS, Icon } from './icons';
 import { t } from './i18n';
-import { act, collapsed, currentChat, editingId, folders, newFolder, toggleCollapsed } from './model';
+import {
+  act,
+  collapsed,
+  currentChat,
+  editingId,
+  folders,
+  newFolder,
+  searchResult,
+  toggleCollapsed,
+} from './model';
 
 /** level = indentation step; root folders are level 0 (and depth 1). */
 export function FolderList({ ids, level }: { ids: string[]; level: number }) {
+  const shown = searchResult.value?.show;
   return (
     <>
-      {ids.map((id) =>
+      {(shown ? ids.filter((id) => shown.has(id)) : ids).map((id) =>
         isFolderId(id) ? <FolderNode key={id} id={id} level={level} /> : <ChatItem key={id} id={id} level={level} />,
       )}
     </>
@@ -24,7 +34,7 @@ function FolderNode({ id, level }: { id: string; level: number }) {
   const folder = folders.value.folders[id];
   if (!folder) return null;
 
-  const open = !collapsed.value.has(id);
+  const open = !collapsed.value.has(id) || !!searchResult.value?.open.has(id);
   const editing = editingId.value === id;
   const chatCount = folder.order.filter((c) => !isFolderId(c)).length;
   const current = currentChat.value;

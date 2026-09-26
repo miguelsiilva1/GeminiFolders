@@ -1,10 +1,13 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { ICONS, Icon } from './icons';
 
 export type MenuItem = {
   label: string;
   onSelect: () => void;
   /** Label shown after a first click; the action runs on the second click. */
   confirm?: string;
+  /** Set for on/off items. */
+  checked?: boolean;
   danger?: boolean;
   hidden?: boolean;
 };
@@ -38,7 +41,8 @@ export function ContextMenu({ at, items, onClose }: { at: DOMRect; items: MenuIt
         {visible.map((item, i) => (
           <button
             key={item.label}
-            role="menuitem"
+            role={item.checked === undefined ? 'menuitem' : 'menuitemcheckbox'}
+            aria-checked={item.checked}
             class={item.danger ? 'danger' : undefined}
             onClick={() => {
               if (item.confirm && confirming !== i) return setConfirming(i);
@@ -46,6 +50,7 @@ export function ContextMenu({ at, items, onClose }: { at: DOMRect; items: MenuIt
               item.onSelect();
             }}
           >
+            {item.checked !== undefined && <span class="check">{item.checked && <Icon d={ICONS.check} />}</span>}
             {confirming === i ? item.confirm : item.label}
           </button>
         ))}

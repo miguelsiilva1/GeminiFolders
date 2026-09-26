@@ -1,12 +1,15 @@
 import css from '../../src/ui/style.css?inline';
+import { effect } from '@preact/signals';
 import { render } from 'preact';
+import { hiddenChatsCss, mountPageStyle } from '../../src/dom/hideStyle';
 import { watchCurrentChat } from '../../src/dom/router';
 import { watchChats } from '../../src/dom/scanner';
 import { SEL } from '../../src/dom/selectors';
+import { isChatId } from '../../src/store/schema';
 import { createStore } from '../../src/store/store';
 import { recordTitles } from '../../src/store/titles';
 import { App } from '../../src/ui/App';
-import { bindStore, currentChat, loadCollapsed, watchTitles } from '../../src/ui/model';
+import { bindStore, currentChat, folders, hideOrganized, loadPrefs, watchTitles } from '../../src/ui/model';
 
 export default defineContentScript({
   matches: ['https://gemini.google.com/*'],
@@ -16,10 +19,21 @@ export default defineContentScript({
     ctx.onInvalidated(watchChats((chats) => recordTitles(chats).catch(console.error)));
     watchCurrentChat(ctx, (id) => (currentChat.value = id));
 
-    const [store, stopTitles] = await Promise.all([createStore(), watchTitles(), loadCollapsed()]);
+    const [store, stopTitles] = await Promise.all([createStore(), watchTitles(), loadPrefs()]);
     ctx.onInvalidated(stopTitles);
     ctx.onInvalidated(bindStore(store));
     ctx.onInvalidated(store.dispose);
+
+    // Optionally hide chats that are already in the panel from Gemini's Recent list.
+    const pageStyle = mountPageStyle();
+    ctx.onInvalidated(pageStyle.remove);
+    ctx.onInvalidated(
+      effect(() => {
+        const { rootOrder, folders: all } = folders.value;
+        const chats = [...rootOrder, ...Object.values(all).flatMap((f) => f.order)].filter(isChatId);
+        pageStyle.set(hideOrganized.value ? hiddenChatsCss(chats) : '');
+      }),
+    );
 
     const ui = await createShadowRootUi(ctx, {
       name: 'gemini-folders',
