@@ -1,0 +1,26 @@
+{
+  "name": "gemini-folders",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "postinstall": "wxt prepare",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2",
+    "wxt": "^0.21.4"
+  },
+  "private": true,
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
+}
