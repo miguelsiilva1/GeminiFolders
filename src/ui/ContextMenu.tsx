@@ -28,6 +28,8 @@ export function ContextMenu({ at, items, onClose }: { at: DOMRect; items: MenuIt
   }, []);
 
   const visible = items.filter((i) => !i.hidden);
+  // Keep labels aligned when some items have a checkmark.
+  const hasChecks = visible.some((i) => i.checked !== undefined);
   return (
     <>
       <div class="backdrop" onPointerDown={onClose} />
@@ -50,7 +52,7 @@ export function ContextMenu({ at, items, onClose }: { at: DOMRect; items: MenuIt
               item.onSelect();
             }}
           >
-            {item.checked !== undefined && <span class="check">{item.checked && <Icon d={ICONS.check} />}</span>}
+            {hasChecks && <span class="check">{item.checked && <Icon d={ICONS.check} />}</span>}
             {confirming === i ? item.confirm : item.label}
           </button>
         ))}
