@@ -74,11 +74,18 @@ Tested in Google Chrome. It should also work in other Chromium browsers (Edge, B
 
 ### Updating
 
-1. Download the new release zip.
-2. Replace the contents of your extension folder with it.
-3. Click **↻** (reload) on the GeminiFolders card in `chrome://extensions`.
+> [!IMPORTANT]
+> **Export a backup before every update.** In Gemini, open the _Folders_ header **⋮** → _Export backup_ and
+> keep the `.json` file. If your folders are missing after the update, restore them with **⋮** → _Import backup_.
 
-Your folders are kept: every build has the same extension ID, so Chrome treats it as the same extension.
+1. Export a backup (see above).
+2. Download the new release zip.
+3. Replace the contents of your extension folder with it.
+4. Click **↻** (reload) on the GeminiFolders card in `chrome://extensions`.
+
+Your folders should normally be kept: every build has the same extension ID, so Chrome treats it as the same
+extension. The backup covers you if something goes wrong, for example if the extension is removed and loaded
+again, or Chrome Sync is off.
 
 ## Sync across computers
 
