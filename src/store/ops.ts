@@ -1,7 +1,22 @@
 import { MAX_DEPTH, folderSchema, isChatId, isFolderId, type State } from './schema';
 
-/** A user action that can't be applied; message is safe to show in the UI. */
-export class OpError extends Error {}
+export type OpCode =
+  | 'nameLength'
+  | 'notFound'
+  | 'maxDepth'
+  | 'intoSelf'
+  | 'chatAtRoot'
+  | 'unknownItem'
+  | 'folderFull'
+  | 'tooManyFolders'
+  | 'syncFull';
+
+/** A user action that can't be applied; code maps to a UI message. */
+export class OpError extends Error {
+  constructor(readonly code: OpCode) {
+    super(code);
+  }
+}
 
 export const emptyState = (): State => ({ v: 1, rootOrder: [], folders: {} });
 
@@ -9,14 +24,14 @@ const newFolderId = () => 'F-' + crypto.randomUUID().replaceAll('-', '').slice(0
 
 function cleanName(name: string): string {
   const parsed = folderSchema.shape.name.safeParse(name);
-  if (!parsed.success) throw new OpError('Folder name must be 1–80 characters.');
+  if (!parsed.success) throw new OpError('nameLength');
   return parsed.data;
 }
 
 function listOf(state: State, parent: string | null): string[] {
   if (parent === null) return state.rootOrder;
   const folder = state.folders[parent];
-  if (!folder) throw new OpError('Folder not found.');
+  if (!folder) throw new OpError('notFound');
   return folder.order;
 }
 
@@ -54,7 +69,7 @@ function detach(state: State, id: string) {
 
 export function createFolder(state: State, name: string, parent: string | null = null) {
   if (parent !== null && depthOf(state, parent) >= MAX_DEPTH)
-    throw new OpError(`Folders can be nested at most ${MAX_DEPTH} levels.`);
+    throw new OpError('maxDepth');
   const next = structuredClone(state);
   const id = newFolderId();
   listOf(next, parent).push(id);
@@ -65,7 +80,7 @@ export function createFolder(state: State, name: string, parent: string | null =
 export function renameFolder(state: State, id: string, name: string): State {
   const next = structuredClone(state);
   const folder = next.folders[id];
-  if (!folder) throw new OpError('Folder not found.');
+  if (!folder) throw new OpError('notFound');
   folder.name = cleanName(name);
   return next;
 }
@@ -73,7 +88,7 @@ export function renameFolder(state: State, id: string, name: string): State {
 /** Contents move up to the parent in place; at root, chats return to Gemini's list. */
 export function deleteFolder(state: State, id: string): State {
   const folder = state.folders[id];
-  if (!folder) throw new OpError('Folder not found.');
+  if (!folder) throw new OpError('notFound');
   const next = structuredClone(state);
   const parent = parentOf(next, id);
   if (parent !== undefined) {
@@ -88,16 +103,16 @@ export function deleteFolder(state: State, id: string): State {
 /** Moves a chat or folder to position index of target (null = root). A chat lives in one folder at most. */
 export function moveItem(state: State, id: string, target: string | null, index: number): State {
   if (isChatId(id)) {
-    if (target === null) throw new OpError('Chats must be inside a folder.');
+    if (target === null) throw new OpError('chatAtRoot');
   } else if (isFolderId(id)) {
-    if (!state.folders[id]) throw new OpError('Folder not found.');
+    if (!state.folders[id]) throw new OpError('notFound');
     if (target === id || (target && isInside(state, target, id)))
-      throw new OpError("A folder can't be moved into itself.");
+      throw new OpError('intoSelf');
     const targetDepth = target === null ? 0 : depthOf(state, target);
     if (targetDepth + heightOf(state, id) > MAX_DEPTH)
-      throw new OpError(`Folders can be nested at most ${MAX_DEPTH} levels.`);
+      throw new OpError('maxDepth');
   } else {
-    throw new OpError('Unknown item.');
+    throw new OpError('unknownItem');
   }
   const next = structuredClone(state);
   const list = listOf(next, target);

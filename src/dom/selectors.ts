@@ -3,6 +3,8 @@ export const SEL = {
   chatList: '[data-test-id="all-conversations"]',
   conversation: '[data-test-id="conversation"]',
   conversationLink: 'a[href^="/app/"]',
+  /** The folder panel is inserted right before Gemini's "Recent" chats section. */
+  panelAnchor: '[data-test-id="chats-expandable-section"]',
 } as const;
 
 const CHAT_HREF = /^\/app\/([a-f0-9]{8,})(?:[/?#]|$)/;

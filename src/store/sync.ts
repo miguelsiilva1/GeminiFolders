@@ -32,14 +32,14 @@ const itemBytes = (key: string, value: unknown) => key.length + JSON.stringify(v
 
 export function checkQuota(items: Items) {
   const entries = Object.entries(items);
-  if (entries.length > MAX_ITEMS) throw new OpError('Too many folders to sync.');
+  if (entries.length > MAX_ITEMS) throw new OpError('tooManyFolders');
   let total = 0;
   for (const [key, value] of entries) {
     const bytes = itemBytes(key, value);
-    if (bytes > QUOTA_BYTES_PER_ITEM) throw new OpError('This folder is full. Split it into subfolders.');
+    if (bytes > QUOTA_BYTES_PER_ITEM) throw new OpError('folderFull');
     total += bytes;
   }
-  if (total > QUOTA_BYTES) throw new OpError('Sync storage is full.');
+  if (total > QUOTA_BYTES) throw new OpError('syncFull');
 }
 
 export async function loadState(): Promise<State> {
